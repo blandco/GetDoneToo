@@ -1,12 +1,10 @@
 package com.joelbland.getdone;
 
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
@@ -20,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 
 public class DeleteActivity extends AppCompatActivity {
+
     private DatabaseManager dbManager;
 
     @Override
@@ -38,18 +37,6 @@ public class DeleteActivity extends AppCompatActivity {
 
         RelativeLayout layout = new RelativeLayout(this);
 
-        // Delete Message
-        TextView deleteMsg = new TextView(this);
-        deleteMsg.setText("CLICK LIST ITEM TO REMOVE");
-        deleteMsg.setPadding(15,30,15,30);
-        deleteMsg.setTextSize(18);
-        deleteMsg.setBackgroundColor(getColor(R.color.white));
-        deleteMsg.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        RelativeLayout.LayoutParams deleteMsgParams = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT
-        );
-        layout.addView(deleteMsg, deleteMsgParams);
 
         // Table setup
         TableLayout table = new TableLayout(this);
@@ -78,10 +65,24 @@ public class DeleteActivity extends AppCompatActivity {
             tr.addView(tv);
             table.addView(tr,trParams);
 
+
         }
 
         scrollView.addView(table);
         layout.addView(scrollView);
+
+        // Delete Message
+        TextView deleteMsg = new TextView(this);
+        deleteMsg.setText("CLICK LIST ITEM TO REMOVE");
+        deleteMsg.setPadding(15,30,15,30);
+        deleteMsg.setTextSize(18);
+        deleteMsg.setBackgroundColor(getColor(R.color.white));
+        deleteMsg.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        RelativeLayout.LayoutParams deleteMsgParams = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+        );
+        layout.addView(deleteMsg, deleteMsgParams);
 
         // Back Button
         Button btnBack = new Button(this);
@@ -100,7 +101,9 @@ public class DeleteActivity extends AppCompatActivity {
         layout.addView(btnBack, btnParams);
 
         setContentView(layout);
+
     }
+
 
     private class ButtonHandler implements View.OnClickListener {
         @Override
@@ -111,5 +114,7 @@ public class DeleteActivity extends AppCompatActivity {
             Toast.makeText(DeleteActivity.this, "Todo Item Deleted", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
 }

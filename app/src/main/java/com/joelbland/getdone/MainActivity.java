@@ -2,45 +2,57 @@ package com.joelbland.getdone;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-    DatabaseManager databaseManager;
+    DatabaseManager dbManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        databaseManager = new DatabaseManager(this);
-        updateView();
+        dbManager = new DatabaseManager(this);
+        //setContentView(R.layout.activity_main);
+        try {
+            updateView();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void updateView() {
-        ArrayList<Todo> todos = databaseManager.selectAll();
+
+    public void updateView() throws ParseException {
+        ArrayList<Todo> todos = dbManager.selectAll();
 
         ScrollView scrollView = new ScrollView(this);
 
         TableLayout layout = new TableLayout(this);
+        //ConstraintLayout layout = new ConstraintLayout(this);
         layout.setPadding(60,60,60,60);
         layout.setStretchAllColumns(true);
 
         for(Todo todo: todos) {
+
             TableRow tr = new TableRow(this);
-            tr.setBackgroundColor(getColor(R.color.light_grey));
+
+
+
             tr.setPadding(30,15,30,15);
             TableLayout.LayoutParams trParams = new TableLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -54,7 +66,34 @@ public class MainActivity extends AppCompatActivity {
             tv.setText(item);
             tv.setTextSize(18);
 
+            String formattedDeadline = convertDateFormat(todo.getDeadline());
+            TextView tvDeadline = new TextView(this);
+            tvDeadline.setText(formattedDeadline);
+            tvDeadline.setTextSize(12);
+
+
+            // Change row color to red if past deadline
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate localDate = LocalDate.now();
+            String today = localDate.toString();
+
+            // ADAPTED FROM:
+            // https://www.tutorialspoint.com/how-to-compare-two-dates-in-java
+            SimpleDateFormat sdformat = new SimpleDateFormat("yyyy-MM-dd");
+            Date d1 = sdformat.parse(todo.getDeadline());
+            Date d2 = sdformat.parse(today);
+
+            if(d2.compareTo(d1) > 0) {
+                tr.setBackgroundColor(getColor(R.color.colorPrimary));
+                tv.setTextColor(getColor(R.color.white));
+                tvDeadline.setTextColor(getColor(R.color.white));
+            } else {
+                tr.setBackgroundColor(getColor(R.color.light_grey));
+            }
+
+            // add row to layout
             tr.addView(tv);
+            tr.addView(tvDeadline);
             layout.addView(tr,trParams);
         }
 
@@ -62,6 +101,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(scrollView);
 
     }
+
+
+
+
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -80,9 +125,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_delete:
                 Intent deleteIntent = new Intent(this, DeleteActivity.class);
                 this.startActivity(deleteIntent);
-                //TextView tvDelete = findViewById(R.id.tvDelete);
-                //LinearLayout layoutDelete = findViewById(R.id.layoutDelete);
-                //layoutDelete.setScaleY(1);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -92,6 +134,35 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        updateView();
+        try {
+            updateView();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
+
+
+    public String convertDateFormat(String oldDateString) {
+        // DATE FORMAT CODE FOUND HERE:
+        // https://stackoverflow.com/questions/3469507/how-can-i-change-the-date-format-in-java
+
+        final String OLD_FORMAT = "yyyy-MM-dd";
+        final String NEW_FORMAT = "MM/dd/yyyy";
+
+        String newDateString;
+
+        SimpleDateFormat sdf = new SimpleDateFormat(OLD_FORMAT);
+        Date d = null;
+        try {
+            d = sdf.parse(oldDateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        sdf.applyPattern(NEW_FORMAT);
+        newDateString = sdf.format(d).toString();
+
+        return newDateString;
+
+    }
+
 }

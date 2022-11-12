@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class DatabaseManager extends SQLiteOpenHelper {
 
-    private static final String DATABASE_NAME = "todoDB";
+    private static final String DATABASE_NAME = "todoDBtoo";
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_TODO = "todo";
 
@@ -20,7 +20,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String sqlCreate = "create table " + TABLE_TODO;
-        sqlCreate += " (id integer primary key autoincrement, todo_item text)";
+        sqlCreate += " (id integer primary key autoincrement, todo_item text,deadline text)";
 
         db.execSQL(sqlCreate);
     }
@@ -34,22 +34,24 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public void insert(Todo todo) {
         SQLiteDatabase db = this.getWritableDatabase();
         String sqlInsert = "insert into " + TABLE_TODO;
-        sqlInsert += " values ( null, '" + todo.getItem() + "')";
+        sqlInsert += " values(null, '" + todo.getItem() + "', '" + todo.getDeadline() +"')";
 
         db.execSQL(sqlInsert);
         db.close();
     }
 
     public ArrayList<Todo> selectAll() {
-        String sqlQuery = "select * from " + TABLE_TODO;
+        String sqlQuery = "select * from " + TABLE_TODO + " order by deadline";
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(sqlQuery, null);
+        Cursor cursor = db.rawQuery(sqlQuery,null);
 
         ArrayList<Todo> items = new ArrayList<Todo>();
         while (cursor.moveToNext()) {
             Todo currentItem = new Todo(
                     Integer.parseInt(cursor.getString(0)),
-                    cursor.getString(1));
+                    cursor.getString(1),
+                    cursor.getString(2)
+            );
             items.add(currentItem);
         }
         db.close();
@@ -63,5 +65,4 @@ public class DatabaseManager extends SQLiteOpenHelper {
         db.execSQL(sqlDelete);
         db.close();
     }
-
 }
